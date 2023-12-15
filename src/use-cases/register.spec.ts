@@ -1,24 +1,24 @@
 import { expect, test, describe, it } from "vitest";
 import { RegisterUseCase } from "./register";
-import { PrismaUsersRepository } from "@/repositories/prisma/prisma-users-repository";
 import { compare } from "bcryptjs";
+import { InMemoryUsersRepository } from "@/repositories/in-memory-users-repository";
+import { UserAlreadyExistsError } from "./errors/user-already-exists-error";
 
 describe("Register Use Case", () => {
-  it("should hash user's password", async () => {
-    const registerUseCase = new RegisterUseCase({
-      async findByEmail(email) {
-        return null;
-      },
-      async create(data) {
-        return {
-          id: "user-1",
-          name: data.name,
-          email: data.email,
-          passwordHash: data.passwordHash,
-          createdAt: new Date(),
-        };
-      },
+  it("should be able to register", async () => {
+    const usersRepository = new InMemoryUsersRepository();
+    const registerUseCase = new RegisterUseCase(usersRepository);
+
+    const { user } = await registerUseCase.execute({
+      name: "John doe",
+      email: "johndoe2@example.com",
+      password: "123456",
     });
+    expect(user.id).toEqual(expect.any(String));
+  });
+  it("should hash user's password", async () => {
+    const usersRepository = new InMemoryUsersRepository();
+    const registerUseCase = new RegisterUseCase(usersRepository);
 
     const { user } = await registerUseCase.execute({
       name: "John doe",
@@ -31,5 +31,25 @@ describe("Register Use Case", () => {
       user.passwordHash
     );
     expect(isPasswordCorrectlyHashed).toBe(true);
+  });
+  it("should not be able to register using the same email twice", async () => {
+    const usersRepository = new InMemoryUsersRepository();
+    const registerUseCase = new RegisterUseCase(usersRepository);
+
+    const email = "johndoe2@example.com";
+
+    await registerUseCase.execute({
+      name: "John doe",
+      email,
+      password: "123456",
+    });
+
+    expect(() =>
+      registerUseCase.execute({
+        name: "John doe",
+        email,
+        password: "123456",
+      })
+    ).rejects.toBeInstanceOf(UserAlreadyExistsError);
   });
 });
