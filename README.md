@@ -30,3 +30,7 @@ Gympass style app.
 - [] Os dados da aplicação precisam estar persistidas em um banco PostgreSQL.
 - [] Todas listas de dados precisam estar paginadas com 20 itens por página.
 - [] O usuário deve ser identificado por um JWT (JSON Web Token)
+
+## SOLID
+
+- D => Dependency Inversion Principle
