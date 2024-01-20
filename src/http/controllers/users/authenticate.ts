@@ -20,10 +20,10 @@ export const authenticate = async (
 
     const { user } = await authenticateUseCase.execute({ email, password });
 
-    const token = await reply.jwtSign({ userId: user.id });
+    const token = await reply.jwtSign({ userId: user.id, role: user.role });
     const refreshToken = await reply.jwtSign(
-      {},
-      { sign: { sub: user.id, expiresIn: "7d" } }
+      { userId: user.id, role: user.role },
+      { sign: { expiresIn: "7d" } }
     );
 
     return reply

@@ -1,20 +1,15 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { z } from "zod";
 
 export const refresh = async (req: FastifyRequest, reply: FastifyReply) => {
   await req.jwtVerify({ onlyCookie: true });
 
-  const token = await reply.jwtSign(
-    {},
-    {
-      sign: {
-        sub: req.user.userId,
-      },
-    }
-  );
+  const token = await reply.jwtSign({
+    userId: req.user.userId,
+    role: req.user.role,
+  });
   const refreshToken = await reply.jwtSign(
-    {},
-    { sign: { sub: req.user.userId, expiresIn: "7d" } }
+    { userId: req.user.userId, role: req.user.role },
+    { sign: { expiresIn: "7d" } }
   );
 
   return reply

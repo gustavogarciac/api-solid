@@ -2,7 +2,6 @@ import request from "supertest";
 import { app } from "@/app";
 
 import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
-import { send } from "process";
 
 describe("Refresh Token (e2e)", () => {
   beforeAll(async () => {
